@@ -4,7 +4,7 @@ using System.Threading;
 
 
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     /// <summary>
     /// 주요 구현점.

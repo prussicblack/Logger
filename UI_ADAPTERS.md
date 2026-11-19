@@ -8,8 +8,8 @@
 폼의 핸들이 만들어진 `OnLoad` 이후에 싱크를 생성합니다.
 
 ```csharp
-using SOEM_FrontEnd.Util.Logging;
-using SOEM_FrontEnd.Util.Logging.WinForms;
+using LogUtil;
+using LogUtil.WinForms;
 
 private WinFormsUiLogSink? _uiLogSink;
 
@@ -40,8 +40,8 @@ ViewModel 또는 code-behind에 UI 로그 컬렉션을 준비합니다.
 
 ```csharp
 using System.Collections.ObjectModel;
-using SOEM_FrontEnd.Util.Logging;
-using SOEM_FrontEnd.Util.Logging.Wpf;
+using LogUtil;
+using LogUtil.Wpf;
 
 public ObservableCollection<string> UiLogs { get; } = new();
 
@@ -72,7 +72,7 @@ XAML에서 자동 따라가기를 활성화합니다.
 
 ```xml
 <Window
-    xmlns:logging="clr-namespace:SOEM_FrontEnd.Util.Logging.Wpf;assembly=Logger.Wpf">
+    xmlns:logging="clr-namespace:LogUtil.Wpf;assembly=Logger.Wpf">
     <ListBox ItemsSource="{Binding UiLogs}"
              logging:AutoFollowTailBehavior.IsEnabled="True"
              logging:AutoFollowTailBehavior.Threshold="24" />
@@ -85,8 +85,8 @@ XAML에서 자동 따라가기를 활성화합니다.
 
 ```csharp
 using System.Collections.ObjectModel;
-using SOEM_FrontEnd.Util.Logging;
-using SOEM_FrontEnd.Util.Logging.Avalonia;
+using LogUtil;
+using LogUtil.Avalonia;
 
 public ObservableCollection<string> UiLogs { get; } = new();
 
@@ -120,7 +120,7 @@ private void DetachUiLogger()
 XAML의 `logging` 네임스페이스는 다음과 같이 선언합니다.
 
 ```xml
-xmlns:logging="clr-namespace:SOEM_FrontEnd.Util.Logging.Avalonia;assembly=Logger.Avalonia"
+xmlns:logging="clr-namespace:LogUtil.Avalonia;assembly=Logger.Avalonia"
 ```
 
 로그를 하나의 여러 줄 `TextBox` 문자열로 표시하는 경우에는 별도 Behavior를 사용할 수 있습니다.

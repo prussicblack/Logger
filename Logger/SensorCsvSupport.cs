@@ -6,7 +6,7 @@ using Serilog.Events;
 using Serilog.Formatting;
 using Serilog.Sinks.File;
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     internal readonly struct SensorLogEnvelope
     {

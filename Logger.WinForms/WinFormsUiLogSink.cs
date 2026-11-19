@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace SOEM_FrontEnd.Util.Logging.WinForms
+namespace LogUtil.WinForms
 {
     /// <summary>WinForms Control의 UI 스레드로 로그를 전달하는 싱크입니다.</summary>
     public sealed class WinFormsUiLogSink : IOPLogUiSink, IDisposable

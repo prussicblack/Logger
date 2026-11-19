@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     public static class Log
     {

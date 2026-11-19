@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     internal sealed class OPLoggerProvider : ILoggerProvider, ISupportExternalScope
     {
@@ -118,9 +118,18 @@ namespace SOEM_FrontEnd.Util.Logging
 
                         if (scopes.Count > 0)
                         {
-                            Dictionary<string, object?> dict;
-                            if (props != null) dict = new Dictionary<string, object?>(props);
-                            else dict = new Dictionary<string, object?>();
+                            //Dictionary<string, object?> dict;
+                            //if (props != null) dict = new Dictionary<string, object?>(props);
+                            //else dict = new Dictionary<string, object?>();
+                            //이하 동일한 기능의 standard 2.0 호환 코드
+                            var dict = new Dictionary<string, object?>();
+                            if (props != null)
+                            {
+                                foreach (var property in props)
+                                {
+                                    dict[property.Key] = property.Value;
+                                }
+                            }
 
                             dict["Scopes"] = scopes;
                             props = dict;

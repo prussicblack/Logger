@@ -11,7 +11,7 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     internal readonly struct LogEnvelope
     {

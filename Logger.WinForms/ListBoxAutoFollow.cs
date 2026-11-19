@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace SOEM_FrontEnd.Util.Logging.WinForms
+namespace LogUtil.WinForms
 {
     public static class ListBoxAutoFollow
     {

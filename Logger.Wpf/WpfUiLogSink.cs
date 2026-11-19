@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Threading;
 
-namespace SOEM_FrontEnd.Util.Logging.Wpf
+namespace LogUtil.Wpf
 {
     /// <summary>WPF Dispatcher의 UI 스레드로 로그를 전달하는 싱크입니다.</summary>
     public sealed class WpfUiLogSink : IOPLogUiSink, IDisposable

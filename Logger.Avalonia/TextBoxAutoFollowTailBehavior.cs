@@ -6,7 +6,7 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 
-namespace SOEM_FrontEnd.Util.Logging.Avalonia
+namespace LogUtil.Avalonia
 {
     public static class TextBoxAutoFollowTailBehavior
     {

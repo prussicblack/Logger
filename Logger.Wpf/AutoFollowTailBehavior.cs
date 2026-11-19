@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace SOEM_FrontEnd.Util.Logging.Wpf
+namespace LogUtil.Wpf
 {
     public static class AutoFollowTailBehavior
     {

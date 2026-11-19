@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     internal static class ByteSize
     {

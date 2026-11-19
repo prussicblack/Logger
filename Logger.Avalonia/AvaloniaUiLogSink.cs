@@ -1,7 +1,7 @@
 using System;
 using Avalonia.Threading;
 
-namespace SOEM_FrontEnd.Util.Logging.Avalonia
+namespace LogUtil.Avalonia
 {
     /// <summary>Avalonia Dispatcher의 UI 스레드로 로그를 전달하는 싱크입니다.</summary>
     public sealed class AvaloniaUiLogSink : IOPLogUiSink, IDisposable

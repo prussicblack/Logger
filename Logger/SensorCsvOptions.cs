@@ -1,6 +1,6 @@
 using System;
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     public sealed class SensorCsvOptions
     {

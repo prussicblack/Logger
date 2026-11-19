@@ -2,7 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     /// <summary>
     /// UI 프레임워크와 무관한 버퍼형 로그 싱크입니다.

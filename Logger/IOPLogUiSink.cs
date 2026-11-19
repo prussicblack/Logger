@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SOEM_FrontEnd.Util.Logging
+namespace LogUtil
 {
     // UI/콘솔/원격 등 "한 줄 로그"를 받을 수 있는 싱크 인터페이스
     public interface IOPLogUiSink
