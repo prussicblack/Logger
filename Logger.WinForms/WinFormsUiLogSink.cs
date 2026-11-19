@@ -9,23 +9,13 @@ namespace LogUtil.WinForms
         private readonly Control _owner;
         private readonly BufferedUiLogSink _inner;
 
-        public WinFormsUiLogSink(
-            Control owner,
-            Action<string> append,
-            TimeSpan? flushInterval = null,
-            int maxPending = 5000,
-            int maxBatchSize = 2000)
+        public WinFormsUiLogSink(Control owner, Action<string> append, TimeSpan? flushInterval = null, int maxPending = 5000, int maxBatchSize = 2000)
         {
             if (owner == null)
                 throw new ArgumentNullException(nameof(owner));
             _owner = owner;
 
-            _inner = new BufferedUiLogSink(
-                Dispatch,
-                append,
-                flushInterval,
-                maxPending,
-                maxBatchSize);
+            _inner = new BufferedUiLogSink(Dispatch, append, flushInterval, maxPending, maxBatchSize);
         }
 
         public void Enqueue(string line) => _inner.Enqueue(line);

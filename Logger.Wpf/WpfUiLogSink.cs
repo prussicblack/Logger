@@ -9,23 +9,13 @@ namespace LogUtil.Wpf
         private readonly Dispatcher _dispatcher;
         private readonly BufferedUiLogSink _inner;
 
-        public WpfUiLogSink(
-            Dispatcher dispatcher,
-            Action<string> append,
-            TimeSpan? flushInterval = null,
-            int maxPending = 5000,
-            int maxBatchSize = 2000)
+        public WpfUiLogSink(Dispatcher dispatcher, Action<string> append, TimeSpan? flushInterval = null, int maxPending = 5000, int maxBatchSize = 2000)
         {
             if (dispatcher == null)
                 throw new ArgumentNullException(nameof(dispatcher));
             _dispatcher = dispatcher;
 
-            _inner = new BufferedUiLogSink(
-                Dispatch,
-                append,
-                flushInterval,
-                maxPending,
-                maxBatchSize);
+            _inner = new BufferedUiLogSink(Dispatch, append, flushInterval, maxPending, maxBatchSize);
         }
 
         public void Enqueue(string line) => _inner.Enqueue(line);
