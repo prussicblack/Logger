@@ -396,15 +396,8 @@ namespace LogUtil
             }
 
             string csvLine = SensorCsvFormatter.SerializeRow(e, _opt.SensorCsv);
-            var property = new LogEventProperty(
-                SensorCsvFormatter.CsvLinePropertyName,
-                new ScalarValue(csvLine));
-            var logEvent = new LogEvent(
-                new DateTimeOffset(e.Timestamp),
-                LogEventLevel.Information,
-                exception: null,
-                MessageTemplate.Empty,
-                new[] { property });
+            var property = new LogEventProperty(SensorCsvFormatter.CsvLinePropertyName, new ScalarValue(csvLine)); var logEvent = 
+                new LogEvent(new DateTimeOffset(e.Timestamp), LogEventLevel.Information, exception: null, MessageTemplate.Empty, new[] { property });
 
             try
             {
