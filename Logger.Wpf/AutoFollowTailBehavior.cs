@@ -47,18 +47,26 @@ namespace LogUtil.Wpf
         private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not ListBox listBox)
+            {
                 return;
+            }
 
             if (e.NewValue is true)
+            {
                 Attach(listBox);
+            }
             else
+            {
                 Detach(listBox);
+            }
         }
 
         private static void OnThresholdChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is ListBox listBox && States.TryGetValue(listBox, out State? state))
+            {
                 state.FollowTail = IsNearBottom(listBox, state);
+            }
         }
 
         private static void Attach(ListBox listBox)
@@ -73,7 +81,9 @@ namespace LogUtil.Wpf
             listBox.ItemContainerGenerator.ItemsChanged += OnItemsChanged;
 
             if (listBox.IsLoaded)
+            {
                 HookScrollViewer(listBox, state);
+            }
         }
 
         private static void Detach(ListBox listBox)
@@ -93,7 +103,9 @@ namespace LogUtil.Wpf
         {
             var listBox = (ListBox)sender;
             if (!States.TryGetValue(listBox, out State? state))
+            {
                 return;
+            }
 
             HookScrollViewer(listBox, state);
             ScrollToEnd(listBox, state, force: true);
@@ -103,19 +115,28 @@ namespace LogUtil.Wpf
         {
             var listBox = (ListBox)sender;
             if (States.TryGetValue(listBox, out State? state))
+            {
                 UnhookScrollViewer(state);
+            }
         }
 
         private static void OnItemsChanged(object? sender, System.Windows.Controls.Primitives.ItemsChangedEventArgs e)
         {
             if (sender is not System.Windows.Controls.ItemContainerGenerator generator)
+            {
                 return;
+            }
+
             if (generator.Items.Count == 0)
+            {
                 return;
+            }
 
             ListBox? listBox = FindOwningListBox(generator);
             if (listBox == null || !States.TryGetValue(listBox, out State? state) || !state.FollowTail)
+            {
                 return;
+            }
 
             ScrollToEnd(listBox, state, force: false);
         }
@@ -127,7 +148,9 @@ namespace LogUtil.Wpf
             foreach (var entry in States)
             {
                 if (ReferenceEquals(entry.Key.ItemContainerGenerator, generator))
+                {
                     return entry.Key;
+                }
             }
 
             return null;
@@ -146,7 +169,9 @@ namespace LogUtil.Wpf
                     new Action(() =>
                     {
                         if (States.TryGetValue(listBox, out State? current))
+                        {
                             HookScrollViewer(listBox, current);
+                        }
                     }),
                     DispatcherPriority.Loaded);
                 return;
@@ -168,18 +193,26 @@ namespace LogUtil.Wpf
         private static void OnScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (sender is not ScrollViewer scrollViewer)
+            {
                 return;
+            }
 
             foreach (var entry in States)
             {
                 if (!ReferenceEquals(entry.Value.ScrollViewer, scrollViewer))
+                {
                     continue;
+                }
 
                 // 콘텐츠 크기 변화가 아닌 실제 스크롤일 때 follow 상태를 갱신합니다.
                 if (Math.Abs(e.ExtentHeightChange) < double.Epsilon)
+                {
                     entry.Value.FollowTail = IsNearBottom(entry.Key, entry.Value);
+                }
                 else if (entry.Value.FollowTail)
+                {
                     ScrollToEnd(entry.Key, entry.Value, force: false);
+                }
 
                 break;
             }
@@ -189,7 +222,9 @@ namespace LogUtil.Wpf
         {
             ScrollViewer? scroll = state.ScrollViewer;
             if (scroll == null)
+            {
                 return true;
+            }
 
             double threshold = Math.Max(0, GetThreshold(listBox));
             return scroll.VerticalOffset + scroll.ViewportHeight >= scroll.ExtentHeight - threshold;
@@ -198,16 +233,23 @@ namespace LogUtil.Wpf
         private static void ScrollToEnd(ListBox listBox, State state, bool force)
         {
             if (listBox.Items.Count == 0)
+            {
                 return;
+            }
+
             if (!force && !state.FollowTail)
+            {
                 return;
+            }
 
             object lastItem = listBox.Items[listBox.Items.Count - 1];
             listBox.Dispatcher.BeginInvoke(
                 new Action(() =>
                 {
                     if (listBox.Items.Contains(lastItem))
+                    {
                         listBox.ScrollIntoView(lastItem);
+                    }
                 }),
                 DispatcherPriority.Background);
         }
@@ -219,11 +261,15 @@ namespace LogUtil.Wpf
             {
                 DependencyObject child = VisualTreeHelper.GetChild(parent, i);
                 if (child is T match)
+                {
                     return match;
+                }
 
                 T? nested = FindVisualChild<T>(child);
                 if (nested != null)
+                {
                     return nested;
+                }
             }
 
             return null;

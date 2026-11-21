@@ -51,9 +51,13 @@ namespace LogUtil.Avalonia
         private static void OnIsEnabledChanged(ListBox listBox, AvaloniaPropertyChangedEventArgs e)
         {
             if (e.NewValue is true)
+            {
                 Attach(listBox);
+            }
             else
+            {
                 Detach(listBox);
+            }
         }
 
         private static void Attach(ListBox listBox)
@@ -77,7 +81,9 @@ namespace LogUtil.Avalonia
             listBox.PropertyChanged -= OnPropertyChanged;
 
             if (!States.TryGetValue(listBox, out State? state))
+            {
                 return;
+            }
 
             UnhookScrollViewer(state);
             UnhookCollection(state);
@@ -88,7 +94,9 @@ namespace LogUtil.Avalonia
         {
             var listBox = (ListBox)sender!;
             if (!States.TryGetValue(listBox, out State? state))
+            {
                 return;
+            }
 
             HookScrollViewer(listBox, state);
             ScrollToEnd(listBox, state, force: true);
@@ -98,19 +106,27 @@ namespace LogUtil.Avalonia
         {
             var listBox = (ListBox)sender!;
             if (States.TryGetValue(listBox, out State? state))
+            {
                 UnhookScrollViewer(state);
+            }
         }
 
         private static void OnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
             var listBox = (ListBox)sender!;
             if (!States.TryGetValue(listBox, out State? state))
+            {
                 return;
+            }
 
             if (e.Property == ItemsControl.ItemsSourceProperty)
+            {
                 RewireItemsSource(listBox, state, e.NewValue);
+            }
             else if (e.Property == ThresholdProperty)
+            {
                 state.FollowTail = IsNearBottom(listBox, state);
+            }
         }
 
         private static void HookScrollViewer(ListBox listBox, State state)
@@ -142,7 +158,9 @@ namespace LogUtil.Avalonia
         private static void UnhookScrollViewer(State state)
         {
             if (state.ScrollViewer == null)
+            {
                 return;
+            }
 
             state.ScrollViewer.ScrollChanged -= OnScrollChanged;
             state.ScrollViewer = null;
@@ -151,12 +169,16 @@ namespace LogUtil.Avalonia
         private static void OnScrollChanged(object? sender, ScrollChangedEventArgs e)
         {
             if (sender is not ScrollViewer scrollViewer)
+            {
                 return;
+            }
 
             foreach (var entry in States)
             {
                 if (!ReferenceEquals(entry.Value.ScrollViewer, scrollViewer))
+                {
                     continue;
+                }
 
                 entry.Value.FollowTail = IsNearBottom(entry.Key, entry.Value);
                 break;
@@ -166,18 +188,24 @@ namespace LogUtil.Avalonia
         private static void RewireItemsSource(ListBox listBox, State state, object? newSource)
         {
             if (ReferenceEquals(state.LastItemsSource, newSource))
+            {
                 return;
+            }
 
             UnhookCollection(state);
             state.LastItemsSource = newSource;
 
             if (newSource is not INotifyCollectionChanged collection)
+            {
                 return;
+            }
 
             state.CollectionHandler = (_, args) =>
             {
                 if (!state.FollowTail)
+                {
                     return;
+                }
 
                 if (args.Action == NotifyCollectionChangedAction.Add ||
                     args.Action == NotifyCollectionChangedAction.Reset ||
@@ -206,7 +234,9 @@ namespace LogUtil.Avalonia
         {
             ScrollViewer? scroll = state.ScrollViewer;
             if (scroll == null)
+            {
                 return true;
+            }
 
             double threshold = Math.Max(0, listBox.GetValue(ThresholdProperty));
             return scroll.Offset.Y + scroll.Viewport.Height >= scroll.Extent.Height - threshold;
@@ -215,13 +245,20 @@ namespace LogUtil.Avalonia
         private static void ScrollToEnd(ListBox listBox, State state, bool force)
         {
             if (!force && !state.FollowTail)
+            {
                 return;
+            }
+
             if (listBox.ItemsSource is not IList items || items.Count == 0)
+            {
                 return;
+            }
 
             object? lastItem = items[items.Count - 1];
             if (lastItem == null)
+            {
                 return;
+            }
 
             Dispatcher.UIThread.Post(() =>
             {

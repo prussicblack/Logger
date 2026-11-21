@@ -57,9 +57,13 @@ namespace LogUtil.Avalonia
             bool enabled = e.NewValue is bool b && b;
 
             if (enabled)
+            {
                 Attach(tb);
+            }
             else
+            {
                 Detach(tb);
+            }
         }
 
         private static void Attach(TextBox tb)
@@ -106,10 +110,14 @@ namespace LogUtil.Avalonia
         private static void Tb_AttachedToVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
         {
             if (sender is not TextBox tb)
+            {
                 return;
+            }
 
             if (!_states.TryGetValue(tb, out var st))
+            {
                 return;
+            }
 
             st.FollowTail = true;
 
@@ -122,10 +130,14 @@ namespace LogUtil.Avalonia
         private static void Tb_DetachedFromVisualTree(object? sender, VisualTreeAttachmentEventArgs e)
         {
             if (sender is not TextBox tb)
+            {
                 return;
+            }
 
             if (!_states.TryGetValue(tb, out var st))
+            {
                 return;
+            }
 
             UnhookScrollViewer(st);
         }
@@ -133,10 +145,14 @@ namespace LogUtil.Avalonia
         private static void Tb_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
             if (sender is not TextBox tb)
+            {
                 return;
+            }
 
             if (!_states.TryGetValue(tb, out var st))
+            {
                 return;
+            }
 
             if (e.Property == ThresholdPxProperty)
             {
@@ -147,14 +163,20 @@ namespace LogUtil.Avalonia
         private static void Tb_TextChanged(object? sender, TextChangedEventArgs e)
         {
             if (sender is not TextBox tb)
+            {
                 return;
+            }
 
             if (!_states.TryGetValue(tb, out var st))
+            {
                 return;
+            }
 
             // 사용자가 위쪽을 보고 있으면 자동 스크롤 금지
             if (!st.FollowTail)
+            {
                 return;
+            }
 
             ScrollToEnd(tb, st, force: false);
         }
@@ -172,14 +194,20 @@ namespace LogUtil.Avalonia
                 {
                     // 이미 Disable/Detach 된 Behavior면 아무것도 하지 않음
                     if (!_states.TryGetValue(tb, out var current))
+                    {
                         return;
+                    }
 
                     if (!ReferenceEquals(current, st))
+                    {
                         return;
+                    }
 
                     var retrySv = FindScrollViewer(tb);
                     if (retrySv == null)
+                    {
                         return;
+                    }
 
                     HookScrollViewerCore(tb, st, retrySv);
                 }, DispatcherPriority.Background);
@@ -241,7 +269,9 @@ namespace LogUtil.Avalonia
 
             ScrollViewer? namedViewer = viewers.FirstOrDefault(x => x.Name == "PART_ScrollViewer");
             if (namedViewer != null)
+            {
                 return namedViewer;
+            }
 
             return viewers.FirstOrDefault();
         }
@@ -250,12 +280,16 @@ namespace LogUtil.Avalonia
         {
             ScrollViewer? sv = st.Scroll;
             if (sv == null)
+            {
                 sv = FindScrollViewer(tb);
+            }
 
             // 초기 Template 구성 중이라 ScrollViewer가 없으면
             // 일단 Tail follow 상태로 간주
             if (sv == null)
+            {
                 return true;
+            }
 
             double threshold = Math.Max(0, tb.GetValue(ThresholdPxProperty));
 
@@ -277,22 +311,33 @@ namespace LogUtil.Avalonia
             bool force)
         {
             if (!force && !st.FollowTail)
+            {
                 return;
+            }
 
             Dispatcher.UIThread.Post(() =>
             {
                 // Post 사이에 Disable 되었을 수도 있음
                 if (!_states.TryGetValue(tb, out var current))
+                {
                     return;
+                }
 
                 if (!ReferenceEquals(current, st))
+                {
                     return;
+                }
 
                 ScrollViewer? sv = st.Scroll;
                 if (sv == null)
+                {
                     sv = FindScrollViewer(tb);
+                }
+
                 if (sv == null)
+                {
                     return;
+                }
 
                 try
                 {

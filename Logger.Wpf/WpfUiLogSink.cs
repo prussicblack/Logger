@@ -12,7 +12,10 @@ namespace LogUtil.Wpf
         public WpfUiLogSink(Dispatcher dispatcher, Action<string> append, TimeSpan? flushInterval = null, int maxPending = 5000, int maxBatchSize = 2000)
         {
             if (dispatcher == null)
+            {
                 throw new ArgumentNullException(nameof(dispatcher));
+            }
+
             _dispatcher = dispatcher;
 
             _inner = new BufferedUiLogSink(Dispatch, append, flushInterval, maxPending, maxBatchSize);
@@ -23,7 +26,9 @@ namespace LogUtil.Wpf
         private void Dispatch(Action action)
         {
             if (_dispatcher.HasShutdownStarted || _dispatcher.HasShutdownFinished)
+            {
                 throw new InvalidOperationException("WPF Dispatcher is shutting down.");
+            }
 
             _dispatcher.BeginInvoke(action, DispatcherPriority.Background);
         }

@@ -8,9 +8,14 @@ namespace LogUtil.WinForms
         public static bool IsNearBottom(this ListBox listBox, int thresholdItems = 1)
         {
             if (listBox == null)
+            {
                 throw new ArgumentNullException(nameof(listBox));
+            }
+
             if (listBox.Items.Count == 0)
+            {
                 return true;
+            }
 
             int visibleItems = GetVisibleItemCount(listBox);
             int lastVisibleIndex = listBox.TopIndex + visibleItems - 1;
@@ -20,9 +25,14 @@ namespace LogUtil.WinForms
         public static void ScrollToBottom(this ListBox listBox)
         {
             if (listBox == null)
+            {
                 throw new ArgumentNullException(nameof(listBox));
+            }
+
             if (listBox.Items.Count == 0)
+            {
                 return;
+            }
 
             int visibleItems = GetVisibleItemCount(listBox);
             listBox.TopIndex = Math.Max(0, listBox.Items.Count - visibleItems);
@@ -38,9 +48,14 @@ namespace LogUtil.WinForms
             int thresholdItems = 1)
         {
             if (listBox == null)
+            {
                 throw new ArgumentNullException(nameof(listBox));
+            }
+
             if (maxItems <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(maxItems));
+            }
 
             bool followTail = listBox.IsNearBottom(thresholdItems);
 
@@ -49,10 +64,14 @@ namespace LogUtil.WinForms
             {
                 listBox.Items.Add(line);
                 while (listBox.Items.Count > maxItems)
+                {
                     listBox.Items.RemoveAt(0);
+                }
 
                 if (followTail)
+                {
                     listBox.ScrollToBottom();
+                }
             }
             finally
             {

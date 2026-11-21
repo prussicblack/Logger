@@ -34,7 +34,9 @@ namespace LogUtil
         public static void Configure(OPLoggerOptions options, IOPLogUiSink? uiSink = null)
         {
             if (options == null)
+            {
                 throw new ArgumentNullException(nameof(options));
+            }
 
             lock (_lock)
             {
@@ -57,7 +59,10 @@ namespace LogUtil
             lock (_lock)
             {
                 if (_worker == null)
+                {
                     return;
+                }
+
                 _worker.SetUiSink(uiSink);
             }
         }
@@ -67,7 +72,10 @@ namespace LogUtil
             lock (_lock)
             {
                 if (_factory == null)
+                {
                     throw new InvalidOperationException("OPLogger is not configured. Call OPLogger.Configure(...) first.");
+                }
+
                 return _factory.CreateLogger(categoryName);
             }
         }
@@ -77,7 +85,10 @@ namespace LogUtil
             lock (_lock)
             {
                 if (_factory == null)
+                {
                     throw new InvalidOperationException("OPLogger is not configured. Call OPLogger.Configure(...) first.");
+                }
+
                 return _factory.CreateLogger<T>();
             }
         }
@@ -90,13 +101,19 @@ namespace LogUtil
         {
             OPLogWorker? worker = Volatile.Read(ref _worker);
             if (worker == null)
+            {
                 return false;
+            }
 
             object?[] sensorValues;
             if (values == null)
+            {
                 sensorValues = Array.Empty<object?>();
+            }
             else
+            {
                 sensorValues = values;
+            }
 
             return worker.EnqueueSensor(new SensorLogEnvelope(DateTime.Now, sensorValues));
         }
@@ -106,7 +123,10 @@ namespace LogUtil
             lock (_lock)
             {
                 if (_worker == null)
+                {
                     return OPLogStats.Empty;
+                }
+
                 return _worker.GetStats();
             }
         }
@@ -121,13 +141,13 @@ namespace LogUtil
 
         private static void Shutdown_NoLock()
         {
-            try { if (_factory != null) _factory.Dispose(); } catch { }
+            try { if (_factory != null) { _factory.Dispose(); } } catch { }
             _factory = null;
 
-            try { if (_provider != null) _provider.Dispose(); } catch { }
+            try { if (_provider != null) { _provider.Dispose(); } } catch { }
             _provider = null;
 
-            try { if (_worker != null) _worker.Dispose(); } catch { }
+            try { if (_worker != null) { _worker.Dispose(); } } catch { }
             _worker = null;
         }
     }

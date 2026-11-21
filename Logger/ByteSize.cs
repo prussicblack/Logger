@@ -12,7 +12,9 @@ namespace LogUtil
         public static long Parse(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
+            {
                 return 0;
+            }
 
             string s = text.Trim().ToUpperInvariant();
             long mul = 1;
@@ -40,9 +42,14 @@ namespace LogUtil
 
             long n;
             if (!long.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out n))
+            {
                 return 0;
+            }
+
             if (n <= 0)
+            {
                 return 0;
+            }
 
             return n * mul;
         }

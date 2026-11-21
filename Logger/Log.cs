@@ -75,7 +75,11 @@ namespace LogUtil
 
         public static void SetDefaultCategory(string category)
         {
-            if (string.IsNullOrWhiteSpace(category)) category = "App";
+            if (string.IsNullOrWhiteSpace(category))
+            {
+                category = "App";
+            }
+
             _default = OPLogger.CreateLogger(category);
         }
 
@@ -84,7 +88,9 @@ namespace LogUtil
             get
             {
                 if (_default != null)
+                {
                     return _default;
+                }
                 // Configure 이후라면 이게 동작
                 _default = OPLogger.CreateLogger("App");
                 return _default;

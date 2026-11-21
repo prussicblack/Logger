@@ -39,25 +39,39 @@ namespace LogUtil
             var builder = new StringBuilder(64);
             string timestampColumnName;
             if (options.TimestampColumnName == null)
+            {
                 timestampColumnName = "Timestamp";
+            }
             else
+            {
                 timestampColumnName = options.TimestampColumnName;
+            }
+
             AppendField(builder, NormalizeLineBreaks(timestampColumnName));
 
             string[] columns;
             if (options.Columns == null)
+            {
                 columns = Array.Empty<string>();
+            }
             else
+            {
                 columns = options.Columns;
+            }
 
             foreach (string column in columns)
             {
                 builder.Append(',');
                 string columnName;
                 if (column == null)
+                {
                     columnName = string.Empty;
+                }
                 else
+                {
                     columnName = column;
+                }
+
                 AppendField(builder, NormalizeLineBreaks(columnName));
             }
 
@@ -69,9 +83,14 @@ namespace LogUtil
             var builder = new StringBuilder(64 + (envelope.Values.Length * 16));
             string timestampFormat;
             if (string.IsNullOrWhiteSpace(options.TimestampFormat))
+            {
                 timestampFormat = "yyyy-MM-dd HH:mm:ss.fff";
+            }
             else
+            {
                 timestampFormat = options.TimestampFormat;
+            }
+
             AppendField(builder, envelope.Timestamp.ToString(timestampFormat, CultureInfo.InvariantCulture));
 
             foreach (object? value in envelope.Values)
@@ -86,23 +105,42 @@ namespace LogUtil
         private static string FormatValue(object? value)
         {
             if (value == null)
+            {
                 return string.Empty;
+            }
+
             if (value is string text)
+            {
                 return NormalizeLineBreaks(text);
+            }
+
             if (value is DateTime dateTime)
+            {
                 return dateTime.ToString("O", CultureInfo.InvariantCulture);
+            }
+
             if (value is DateTimeOffset dateTimeOffset)
+            {
                 return dateTimeOffset.ToString("O", CultureInfo.InvariantCulture);
+            }
+
             if (value is IFormattable formattable)
             {
                 string? formatted = formattable.ToString(null, CultureInfo.InvariantCulture);
                 if (formatted == null)
+                {
                     return string.Empty;
+                }
+
                 return formatted;
             }
 
             string? valueText = value.ToString();
-            if (valueText == null) valueText = string.Empty;
+            if (valueText == null)
+            {
+                valueText = string.Empty;
+            }
+
             return NormalizeLineBreaks(valueText);
         }
 
@@ -121,8 +159,14 @@ namespace LogUtil
             builder.Append('"');
             foreach (char ch in value)
             {
-                if (ch == '"') builder.Append("\"\"");
-                else builder.Append(ch);
+                if (ch == '"')
+                {
+                    builder.Append("\"\"");
+                }
+                else
+                {
+                    builder.Append(ch);
+                }
             }
             builder.Append('"');
         }
@@ -135,7 +179,10 @@ namespace LogUtil
         public SensorCsvHeaderHook(string header)
         {
             if (header == null)
+            {
                 throw new ArgumentNullException(nameof(header));
+            }
+
             _header = header;
         }
 

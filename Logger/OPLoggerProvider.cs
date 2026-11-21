@@ -47,9 +47,14 @@ namespace LogUtil
         public OpLogger(string category, OPLogWorker worker, OPLoggerOptions opt, OPLoggerProvider provider)
         {
             if (category == null)
+            {
                 _category = "";
+            }
             else
+            {
                 _category = category;
+            }
+
             _worker = worker;
             _opt = opt;
             _provider = provider;
@@ -69,14 +74,19 @@ namespace LogUtil
         public bool IsEnabled(LogLevel logLevel)
         {
             if (logLevel == LogLevel.None)
+            {
                 return false;
+            }
+
             return logLevel >= _opt.MinimumLevel;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             if (!IsEnabled(logLevel))
+            {
                 return;
+            }
 
             string message;
             try
@@ -89,9 +99,13 @@ namespace LogUtil
                 {
                     string? stateText = state.ToString();
                     if (stateText == null)
+                    {
                         message = "";
+                    }
                     else
+                    {
                         message = stateText;
+                    }
                 }
                 else
                 {
@@ -146,22 +160,32 @@ namespace LogUtil
         private static IReadOnlyDictionary<string, object?>? ExtractStructuredState<TState>(TState state)
         {
             if (state == null)
+            {
                 return null;
+            }
 
             var kvps = state as IEnumerable<KeyValuePair<string, object?>>;
             if (kvps == null)
+            {
                 return null;
+            }
 
             var dict = new Dictionary<string, object?>();
             foreach (var kv in kvps)
             {
                 if (kv.Key == "{OriginalFormat}")
+                {
                     continue;
+                }
+
                 dict[kv.Key] = kv.Value;
             }
 
             if (dict.Count == 0)
+            {
                 return null;
+            }
+
             return dict;
         }
     }

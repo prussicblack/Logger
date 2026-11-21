@@ -21,14 +21,24 @@ namespace LogUtil
             Local = local;
             Level = level;
             if (category == null)
+            {
                 Category = "";
+            }
             else
+            {
                 Category = category;
+            }
+
             EventId = eventId;
             if (message == null)
+            {
                 Message = "";
+            }
             else
+            {
                 Message = message;
+            }
+
             Exception = exception;
             Props = props;
         }
@@ -113,7 +123,10 @@ namespace LogUtil
         public OPLogWorker(OPLoggerOptions opt, IOPLogUiSink? uiSink)
         {
             if (opt == null)
+            {
                 throw new ArgumentNullException(nameof(opt));
+            }
+
             _opt = opt;
 
             if (string.IsNullOrWhiteSpace(_opt.LogFolder))
@@ -124,23 +137,35 @@ namespace LogUtil
             {
                 _opt.LogFolder = Path.Combine(AppContext.BaseDirectory, _opt.LogFolder);
             }
-            
+
             if (uiSink == null)
+            {
                 _uiSink = NullUiSink.Instance;
+            }
             else
+            {
                 _uiSink = uiSink;
+            }
+
 
             if (_opt.QueueCapacity > 0)
+            {
                 _queueCapacity = _opt.QueueCapacity;
+            }
             else
+            {
                 _queueCapacity = 1024;
+            }
+
             _queue = new Queue<OPLogWorkItem>(_queueCapacity);
 
             _currentFilePath = BuildNewLogFilePath(_opt.FileNamePrefix);
             _fileEnabled = TryCreateFileLogger(_currentFilePath);
 
             if (_opt.SensorCsv.Enabled)
+            {
                 _sensorCurrentFilePath = BuildNewSensorFilePath();
+            }
 
             _thread = new Thread(ThreadMain);
             _thread.IsBackground = true;
@@ -154,9 +179,13 @@ namespace LogUtil
             lock (_uiLock)
             {
                 if (uiSink == null)
+                {
                     _uiSink = NullUiSink.Instance;
+                }
                 else
+                {
                     _uiSink = uiSink;
+                }
             }
         }
 
@@ -170,9 +199,14 @@ namespace LogUtil
             SensorCsvOptions options = _opt.SensorCsv;
             string[] columns;
             if (options.Columns == null)
+            {
                 columns = Array.Empty<string>();
+            }
             else
+            {
                 columns = options.Columns;
+            }
+
             if (!options.Enabled || columns.Length != e.Values.Length)
             {
                 Interlocked.Increment(ref _dropped);
@@ -209,7 +243,10 @@ namespace LogUtil
                 Interlocked.Exchange(ref _lastEnqueueUtcTicks, DateTime.UtcNow.Ticks);
 
                 int d = _queue.Count;
-                if (d > _maxDepth) _maxDepth = d;
+                if (d > _maxDepth)
+                {
+                    _maxDepth = d;
+                }
 
                 Monitor.Pulse(_queueLock);
                 return true;
@@ -225,7 +262,9 @@ namespace LogUtil
                     try
                     {
                         if (!TryTake(out OPLogWorkItem item))
+                        {
                             break;
+                        }
 
                         try
                         {
@@ -241,20 +280,26 @@ namespace LogUtil
                     {
                         RecordWorkerFault(ex);
                         if (_stopping)
+                        {
                             break;
+                        }
+
                         _stopSignal.Wait(TimeSpan.FromMilliseconds(100));
                     }
                 }
             }
             finally
             {
-                try { if (_fileLogger != null) _fileLogger.Dispose(); } catch { }
+                try { if (_fileLogger != null) { _fileLogger.Dispose(); } } catch { }
                 _fileLogger = null;
                 _fileEnabled = false;
 
                 try
                 {
-                    if (_sensorLogger != null) _sensorLogger.Dispose();
+                    if (_sensorLogger != null)
+                    {
+                        _sensorLogger.Dispose();
+                    }
                 }
                 catch { }
                 _sensorLogger = null;
@@ -266,7 +311,9 @@ namespace LogUtil
             lock (_queueLock)
             {
                 while (_queue.Count == 0 && _accepting && !_stopping)
+                {
                     Monitor.Wait(_queueLock);
+                }
 
                 if (_stopping || (_queue.Count == 0 && !_accepting))
                 {
@@ -291,9 +338,13 @@ namespace LogUtil
         private void ProcessOne(in OPLogWorkItem item)
         {
             if (item.Kind == OPLogWorkItemKind.Sensor)
+            {
                 ProcessSensor(item.Sensor);
+            }
             else
+            {
                 ProcessLog(item.Log);
+            }
         }
 
         private void ProcessLog(in LogEnvelope e)
@@ -320,11 +371,15 @@ namespace LogUtil
 
                 fileWritten = TryWriteToFile(e);
                 if (!fileWritten)
+                {
                     WaitForFileRecovery();
+                }
             }
 
             if (!fileWritten)
+            {
                 return;
+            }
 
             Interlocked.Exchange(ref _lastWriteUtcTicks, DateTime.UtcNow.Ticks);
             Interlocked.Increment(ref _written);
@@ -361,7 +416,10 @@ namespace LogUtil
             {
                 try
                 {
-                    if (_sensorLogger != null) _sensorLogger.Dispose();
+                    if (_sensorLogger != null)
+                    {
+                        _sensorLogger.Dispose();
+                    }
                 }
                 catch { }
                 _sensorLogger = null;
@@ -372,34 +430,52 @@ namespace LogUtil
         private bool EnsureSensorLogger()
         {
             if (_sensorLogger != null)
+            {
                 return true;
+            }
 
             SensorCsvOptions options = _opt.SensorCsv;
             if (!options.Enabled)
+            {
                 return false;
+            }
 
             try
             {
                 if (string.IsNullOrWhiteSpace(_sensorCurrentFilePath))
+                {
                     _sensorCurrentFilePath = BuildNewSensorFilePath();
+                }
 
                 TimeSpan flushInterval;
                 if (options.FlushToDiskInterval > TimeSpan.Zero)
+                {
                     flushInterval = options.FlushToDiskInterval;
+                }
                 else
+                {
                     flushInterval = TimeSpan.FromMilliseconds(100);
+                }
 
                 long? fileSizeLimit;
                 if (options.FileSizeLimitBytes > 0)
+                {
                     fileSizeLimit = options.FileSizeLimitBytes;
+                }
                 else
+                {
                     fileSizeLimit = null;
+                }
 
                 int? retainedFileCount;
                 if (options.RetainedFileCountLimit > 0)
+                {
                     retainedFileCount = options.RetainedFileCountLimit;
+                }
                 else
+                {
                     retainedFileCount = null;
+                }
 
                 var logger = new LoggerConfiguration()
                     .MinimumLevel.Verbose()
@@ -431,7 +507,11 @@ namespace LogUtil
         private void WaitForFileRecovery()
         {
             TimeSpan delay = _opt.FileRecoveryRetryInterval;
-            if (delay <= TimeSpan.Zero) delay = TimeSpan.FromSeconds(1);
+            if (delay <= TimeSpan.Zero)
+            {
+                delay = TimeSpan.FromSeconds(1);
+            }
+
             _stopSignal.Wait(delay);
         }
 
@@ -439,11 +519,19 @@ namespace LogUtil
         {
             string msg;
             if (e.Message == null)
+            {
                 msg = "";
+            }
             else
+            {
                 msg = e.Message;
+            }
+
             if (_opt.MaxMessageChars > 0 && msg.Length > _opt.MaxMessageChars)
+            {
                 msg = msg.Substring(0, _opt.MaxMessageChars) + " …(truncated)";
+            }
+
             return string.Format(CultureInfo.InvariantCulture, "{0:HH:mm:ss.fff} [{1}] {2}", e.Local, e.Level, msg);
         }
 
@@ -451,11 +539,18 @@ namespace LogUtil
         {
             string msg;
             if (e.Message == null)
+            {
                 msg = "";
+            }
             else
+            {
                 msg = e.Message;
+            }
+
             if (_opt.MaxMessageChars > 0 && msg.Length > _opt.MaxMessageChars)
+            {
                 msg = msg.Substring(0, _opt.MaxMessageChars) + " …(truncated)";
+            }
 
             Exception? ex = e.Exception;
             if (ex != null && _opt.MaxExceptionChars > 0)
@@ -483,14 +578,19 @@ namespace LogUtil
 
                 Serilog.ILogger l = logger.ForContext("Category", e.Category);
                 if (e.EventId.Id != 0 || !string.IsNullOrWhiteSpace(e.EventId.Name))
+                {
                     l = l.ForContext("EventId", e.EventId.Id);
+                }
 
                 if (e.Props != null)
                 {
                     foreach (var kv in e.Props)
                     {
                         if (kv.Key == null)
+                        {
                             continue;
+                        }
+
                         l = l.ForContext(kv.Key, kv.Value, destructureObjects: true);
                     }
                 }
@@ -507,7 +607,9 @@ namespace LogUtil
                 // 메시지/속성 직렬화 같은 항목 자체의 오류는 파일 장애로 취급하지 않는다.
                 // 상위 항목 단위 catch에서 현재 로그만 버리고 다음 로그를 계속 처리한다.
                 if (!IsRecoverableFileException(ioEx))
+                {
                     throw;
+                }
 
                 _consecutiveFileFailures++;
 
@@ -520,7 +622,10 @@ namespace LogUtil
                             var level = MapLevel(e.Level);
                             Logger? retryLogger = _fileLogger;
                             if (retryLogger == null)
+                            {
                                 throw new IOException("Failover logger was not created.");
+                            }
+
                             retryLogger.Write(level, ex, "{Text}", msg);
                             _consecutiveFileFailures = 0;
                             Interlocked.Exchange(ref _fileUnavailableNotified, 0);
@@ -561,19 +666,27 @@ namespace LogUtil
             if (!TryCreateFileLogger(path))
             {
                 if (Interlocked.Exchange(ref _fileUnavailableNotified, 1) == 0)
+                {
                     SafeUi("[LOG] File logging unavailable; buffering with " + _opt.QueueMode + ".");
+                }
+
                 return false;
             }
 
             try
             {
-                if (old != null && !ReferenceEquals(old, _fileLogger)) old.Dispose();
+                if (old != null && !ReferenceEquals(old, _fileLogger))
+                {
+                    old.Dispose();
+                }
             }
             catch { }
 
             _consecutiveFileFailures = 0;
             if (Interlocked.Exchange(ref _fileUnavailableNotified, 0) != 0)
+            {
                 SafeUi("[LOG] File logging recovered -> " + Path.GetFileName(path));
+            }
 
             return true;
         }
@@ -601,7 +714,7 @@ namespace LogUtil
 
                 if (TryCreateFileLogger(newPath))
                 {
-                    try { if (old != null) old.Dispose(); } catch { }
+                    try { if (old != null) { old.Dispose(); } } catch { }
                     SafeUi("[LOG] Failover -> " + Path.GetFileName(newPath));
                     return true;
                 }
@@ -650,25 +763,44 @@ namespace LogUtil
             SensorCsvOptions options = _opt.SensorCsv;
             string folder;
             if (string.IsNullOrWhiteSpace(options.LogFolder))
+            {
                 folder = "SensorLogs";
+            }
             else
+            {
                 folder = options.LogFolder;
+            }
 
             if (!Path.IsPathRooted(folder))
+            {
                 folder = Path.Combine(AppContext.BaseDirectory, folder);
+            }
 
             string extension;
             if (string.IsNullOrWhiteSpace(options.FileExtension))
+            {
                 extension = ".csv";
+            }
             else
+            {
                 extension = options.FileExtension;
-            if (!extension.StartsWith(".")) extension = "." + extension;
+            }
+
+            if (!extension.StartsWith("."))
+            {
+                extension = "." + extension;
+            }
 
             string prefix;
             if (string.IsNullOrWhiteSpace(options.FileNamePrefix))
+            {
                 prefix = "sensor_";
+            }
             else
+            {
                 prefix = options.FileNamePrefix;
+            }
+
             string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff", CultureInfo.InvariantCulture);
 
             return Path.Combine(folder, prefix + stamp + extension);
@@ -679,12 +811,25 @@ namespace LogUtil
             string stamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff", CultureInfo.InvariantCulture);
 
             string ext = _opt.FileExtension;
-            if (string.IsNullOrWhiteSpace(ext)) ext = ".log";
-            if (!ext.StartsWith(".")) ext = "." + ext;
+            if (string.IsNullOrWhiteSpace(ext))
+            {
+                ext = ".log";
+            }
+
+            if (!ext.StartsWith("."))
+            {
+                ext = "." + ext;
+            }
 
             string name;
-            if (seq > 0) name = prefix + stamp + "_" + seq.ToString("D4", CultureInfo.InvariantCulture) + ext;
-            else name = prefix + stamp + ext;
+            if (seq > 0)
+            {
+                name = prefix + stamp + "_" + seq.ToString("D4", CultureInfo.InvariantCulture) + ext;
+            }
+            else
+            {
+                name = prefix + stamp + ext;
+            }
 
             return Path.Combine(_opt.LogFolder, name);
         }
@@ -692,14 +837,21 @@ namespace LogUtil
         private void MaybeTrimFolder()
         {
             if (_opt.MaxFolderBytes <= 0)
+            {
                 return;
+            }
+
             if (_opt.FolderTrimInterval <= TimeSpan.Zero)
+            {
                 return;
+            }
 
             long now = DateTime.UtcNow.Ticks;
             long next = Interlocked.Read(ref _nextTrimUtcTicks);
             if (next != 0 && now < next)
+            {
                 return;
+            }
 
             Interlocked.Exchange(ref _nextTrimUtcTicks, now + _opt.FolderTrimInterval.Ticks);
 
@@ -713,16 +865,26 @@ namespace LogUtil
         private void MaybeRotateOnSize()
         {
             if (_opt.MaxActiveFileBytes <= 0)
+            {
                 return;
+            }
+
             if (_opt.ActiveFileSizeCheckInterval <= TimeSpan.Zero)
+            {
                 return;
+            }
+
             if (string.IsNullOrWhiteSpace(_currentFilePath))
+            {
                 return;
+            }
 
             long now = DateTime.UtcNow.Ticks;
             long next = Interlocked.Read(ref _nextSizeCheckUtcTicks);
             if (next != 0 && now < next)
+            {
                 return;
+            }
 
             Interlocked.Exchange(ref _nextSizeCheckUtcTicks, now + _opt.ActiveFileSizeCheckInterval.Ticks);
 
@@ -730,16 +892,21 @@ namespace LogUtil
             {
                 var fi = new FileInfo(_currentFilePath);
                 if (!fi.Exists)
+                {
                     return;
+                }
+
                 if (fi.Length <= _opt.MaxActiveFileBytes)
+                {
                     return;
+                }
 
                 Logger? old = _fileLogger;
                 string newPath = BuildNewLogFilePath(_opt.FileNamePrefix);
 
                 if (TryCreateFileLogger(newPath))
                 {
-                    try { if (old != null) old.Dispose(); } catch { }
+                    try { if (old != null) { old.Dispose(); } } catch { }
                     SafeUi("[LOG] Rotate(size) -> " + Path.GetFileName(newPath));
                 }
             }
@@ -749,10 +916,19 @@ namespace LogUtil
         private static void TrimFolderToLimit(string folder, long maxBytes, string currentFile, string fileExtension)
         {
             if (!Directory.Exists(folder))
+            {
                 return;
+            }
 
-            if (string.IsNullOrWhiteSpace(fileExtension)) fileExtension = ".log";
-            if (!fileExtension.StartsWith(".")) fileExtension = "." + fileExtension;
+            if (string.IsNullOrWhiteSpace(fileExtension))
+            {
+                fileExtension = ".log";
+            }
+
+            if (!fileExtension.StartsWith("."))
+            {
+                fileExtension = "." + fileExtension;
+            }
 
             var files = new DirectoryInfo(folder)
                 .GetFiles("*" + fileExtension, SearchOption.TopDirectoryOnly)
@@ -760,15 +936,23 @@ namespace LogUtil
                 .ToList();
 
             long total = 0;
-            for (int i = 0; i < files.Count; i++) total += files[i].Length;
+            for (int i = 0; i < files.Count; i++)
+            {
+                total += files[i].Length;
+            }
+
             if (total <= maxBytes)
+            {
                 return;
+            }
 
             for (int i = 0; i < files.Count && total > maxBytes; i++)
             {
                 var f = files[i];
                 if (string.Equals(f.FullName, currentFile, StringComparison.OrdinalIgnoreCase))
+                {
                     continue;
+                }
 
                 try
                 {
@@ -825,7 +1009,9 @@ namespace LogUtil
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) != 0)
+            {
                 return;
+            }
 
             _accepting = false;
 
@@ -838,9 +1024,13 @@ namespace LogUtil
             try
             {
                 if (_thread.IsAlive)
+                {
                     stopped = _thread.Join(2000);
+                }
                 else
+                {
                     stopped = true;
+                }
             }
             catch { }
 

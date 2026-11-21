@@ -12,7 +12,10 @@ namespace LogUtil.WinForms
         public WinFormsUiLogSink(Control owner, Action<string> append, TimeSpan? flushInterval = null, int maxPending = 5000, int maxBatchSize = 2000)
         {
             if (owner == null)
+            {
                 throw new ArgumentNullException(nameof(owner));
+            }
+
             _owner = owner;
 
             _inner = new BufferedUiLogSink(Dispatch, append, flushInterval, maxPending, maxBatchSize);
@@ -23,10 +26,14 @@ namespace LogUtil.WinForms
         private void Dispatch(Action action)
         {
             if (_owner.IsDisposed || _owner.Disposing)
+            {
                 throw new ObjectDisposedException(_owner.Name);
+            }
 
             if (!_owner.IsHandleCreated)
+            {
                 throw new InvalidOperationException("WinForms UI handle has not been created yet.");
+            }
 
             _owner.BeginInvoke(action);
         }

@@ -43,9 +43,14 @@ namespace LogUtil
             Configured = configured;
             FileEnabled = fileEnabled;
             if (currentFile == null)
+            {
                 CurrentFile = "";
+            }
             else
+            {
                 CurrentFile = currentFile;
+            }
+
             Enqueued = enqueued;
             Written = written;
             Dropped = dropped;

@@ -22,28 +22,45 @@ namespace LogUtil
         public BufferedUiLogSink(Action<Action> dispatch, Action<string> append, TimeSpan? flushInterval = null, int maxPending = 5000, int maxBatchSize = 2000)
         {
             if (dispatch == null)
+            {
                 throw new ArgumentNullException(nameof(dispatch));
+            }
+
             if (append == null)
+            {
                 throw new ArgumentNullException(nameof(append));
+            }
 
             _dispatch = dispatch;
             _append = append;
 
             if (maxPending <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(maxPending));
+            }
+
             if (maxBatchSize <= 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(maxBatchSize));
+            }
 
             MaxPending = maxPending;
             MaxBatchSize = maxBatchSize;
 
             TimeSpan interval;
             if (flushInterval.HasValue)
+            {
                 interval = flushInterval.Value;
+            }
             else
+            {
                 interval = TimeSpan.FromMilliseconds(100);
+            }
+
             if (interval <= TimeSpan.Zero)
+            {
                 throw new ArgumentOutOfRangeException(nameof(flushInterval));
+            }
 
             _timer = new Timer(_ => TryScheduleFlush(), null, interval, interval);
         }
@@ -55,7 +72,9 @@ namespace LogUtil
         public void Enqueue(string line)
         {
             if (line == null || Volatile.Read(ref _disposed) != 0)
+            {
                 return;
+            }
 
             _queue.Enqueue(line);
             int count = Interlocked.Increment(ref _pendingCount);
@@ -70,9 +89,14 @@ namespace LogUtil
         private void TryScheduleFlush()
         {
             if (Volatile.Read(ref _disposed) != 0 || _queue.IsEmpty)
+            {
                 return;
+            }
+
             if (Interlocked.CompareExchange(ref _flushScheduled, 1, 0) != 0)
+            {
                 return;
+            }
 
             try
             {
@@ -108,7 +132,10 @@ namespace LogUtil
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) != 0)
+            {
                 return;
+            }
+
             _timer.Dispose();
 
             while (_queue.TryDequeue(out _)) { }
